@@ -1,41 +1,33 @@
-// アプリケーション作成用のモジュールを読み込み
 const electron = require('electron');
-const { app } = electron;
-const { BrowserWindow } = electron;
+const app = electron.app; // アプリケーション作成用モジュールをロード
+const BrowserWindow = electron.BrowserWindow;
+const crashReporter = electron.crashReporter;
 
-let win;
+//	クラッシュレポート
+crashReporter.start({
+    productName: 'EleTwi',
+    companyName: '',
+    submitURL: 'http://hoge.hoge',
+    autoSubmit: true
+})
 
-function createWindow() {
-    // メインウィンドウを作成します
-    win = new BrowserWindow({ width: 600, height: 400 });
+var mainWindow = null;
 
-    // メインウィンドウに表示するURLを指定します
-    // （今回はmain.jsと同じディレクトリのindex.html）
-    win.loadURL(`file://${__dirname}/index.html`);
-
-    // デベロッパーツールの起動
-    win.webContents.openDevTools();
-
-    // メインウィンドウが閉じられたときの処理
-    win.on('closed', () => {
-        win = null;
-    });
-}
-
-//  初期化が完了した時の処理
-app.on('ready', createWindow);
-
-// 全てのウィンドウが閉じたらアプリケーションを終了します
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+// 全てのウィンドウが閉じたらアプリケーションを終了します。
+app.on('window-all-closed', function() {
+    app.quit();
 });
 
-// アプリケーションがアクティブになった時の処理(Macだと、Dockがクリックされた時）
-app.on('activate', () => {
-    // メインウィンドウが消えている場合は再度メインウィンドウを作成する
-    if (win === null) {
-        createWindow();
-    }
+// アプリケーションの初期化が完了したら呼び出されます。
+app.on('ready', function() {
+    // メインウィンドウを作成します。
+    mainWindow = new BrowserWindow({ width: 800, height: 540 });
+
+    // メインウィンドウに表示するURLを指定します。
+    mainWindow.loadURL('file://' + __dirname + '/index.html');
+
+    // メインウィンドウが閉じられたときの処理
+    mainWindow.on('closed', function() {
+        mainWindow = null;
+    });
 });
